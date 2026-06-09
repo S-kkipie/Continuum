@@ -6,7 +6,7 @@ A phased program. Each sub-spec is its own spec → plan → implement cycle. Ca
 |---|---|---|
 | 0 | **Scaffold & infra** (walking skeleton) | ✅ DONE — plan: `docs/superpowers/plans/2026-06-09-continuum-scaffold.md` |
 | 1 | **Domain model + ingestion → Foundry IQ** (capture loop) | 📝 Speced (`…-spec1-capture-design.md`), not yet planned — **NEXT** |
-| 2 | **Grounded mentor agent** (Agent Framework + Foundry IQ retrieval) | ⬜ Not started |
+| 2 | **Grounded mentor agent** (Agent Framework + Foundry IQ retrieval) | 📝 Speced (`…-spec2-mentor-design.md`), not yet planned |
 | 2 | **Onboarding plan + exercises + progress** | ⬜ Not started |
 | 3 | **Work IQ + Fabric IQ enrichment** | ⬜ Not started — prereq: Copilot-licensed M365 tenant + Fabric capacity |
 | 4 | **Seed dataset + UI polish + demo script** | ⬜ Not started |
