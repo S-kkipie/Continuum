@@ -1,0 +1,10 @@
+name: continuum
+services:
+  web:
+    project: ../apps/web
+    language: ts
+    host: containerapp
+  api:
+    project: ../apps/api
+    language: py
+    host: containerapp
