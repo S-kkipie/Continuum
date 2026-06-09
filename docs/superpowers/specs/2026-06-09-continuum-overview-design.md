@@ -35,6 +35,7 @@ of employee experience into a durable organizational asset.
 
 | Concern | Choice | Status |
 |---|---|---|
+| Monorepo | **Turborepo** + **pnpm** workspaces (JS/TS); **uv** for the Python app | — |
 | Frontend | Next.js (App Router) + TypeScript + Tailwind + **shadcn/ui** | — |
 | Frontend state/data | **TanStack Query + TanStack Table + TanStack Form** | — |
 | Chat UI ↔ agent | **assistant-ui** (transport-agnostic, custom FastAPI SSE) | — |
@@ -85,6 +86,30 @@ stays auth-light (trusts the BFF). Foundry IQ (Azure resource audience) is reach
 **backend managed identity**, not a user token — Work IQ/Copilot Retrieval (Graph audience)
 uses the forwarded delegated token. Set Better Auth `tenantId` to the Copilot-licensed
 tenant; use `profile.oid`+`profile.tid` as the identity anchor (email is unverified/mutable).
+
+### 4.1 Monorepo Layout (Turborepo + pnpm + uv)
+
+```
+continuum/
+├── turbo.json                # task graph (build, dev, lint, typecheck, test)
+├── pnpm-workspace.yaml       # apps/* + packages/*
+├── package.json              # root, pnpm workspaces
+├── apps/
+│   ├── web/                  # Next.js (App Router, Better Auth, assistant-ui, shadcn, TanStack)
+│   └── api/                  # Python FastAPI agent backend (uv, SQLModel, Agent Framework)
+├── packages/
+│   ├── db/                   # Drizzle schema + client (Better Auth tables, Node side)
+│   ├── ui/                   # shared shadcn components (optional)
+│   └── config/               # shared tsconfig / eslint / tailwind presets
+└── infra/                    # azd / Bicep (Foundry, Container Apps, Postgres, Blob)
+```
+
+**Turbo ↔ Python:** Turborepo orchestrates the JS/TS workspaces natively. `apps/api`
+(Python) is managed by **uv**; it is wired into the Turbo graph as a passthrough task
+(`dev`/`lint`/`test` shell out to `uv run ...`) so `turbo run` drives the whole repo, while
+uv owns Python dependency resolution. Postgres is shared: Drizzle (Node) owns Better Auth +
+org tables; SQLModel (Python) owns the domain tables — **separate migration tracks, no
+cross-ORM FKs** (boundary enforced at the BFF, per §6).
 
 ## 5. Phased Sub-Spec Program
 
