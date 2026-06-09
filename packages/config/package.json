@@ -1,0 +1,14 @@
+{
+  "name": "@continuum/config",
+  "version": "0.0.0",
+  "private": true,
+  "files": ["tsconfig.base.json", "eslint.base.mjs"],
+  "exports": {
+    "./tsconfig": "./tsconfig.base.json",
+    "./eslint": "./eslint.base.mjs"
+  },
+  "devDependencies": {
+    "eslint": "^9.13.0",
+    "typescript-eslint": "^8.10.0"
+  }
+}
