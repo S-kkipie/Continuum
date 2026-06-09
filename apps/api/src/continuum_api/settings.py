@@ -10,7 +10,7 @@ class Settings(BaseSettings):
     model_config = SettingsConfigDict(env_file=str(_ROOT_ENV), extra="ignore")
 
     database_url: str = "postgresql://continuum:continuum@localhost:5432/continuum"
-    api_service_token: str = "dev-shared-service-token"
+    api_service_token: str
 
 
 settings = Settings()

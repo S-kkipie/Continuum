@@ -1,4 +1,6 @@
-HEADERS = {"X-Service-Token": "dev-shared-service-token"}
+from continuum_api.settings import settings
+
+HEADERS = {"X-Service-Token": settings.api_service_token}
 
 
 def test_internal_hello_requires_service_token(client):

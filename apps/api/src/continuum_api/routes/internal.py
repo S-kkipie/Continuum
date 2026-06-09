@@ -1,3 +1,5 @@
+import secrets
+
 from fastapi import APIRouter, Depends, Header, HTTPException
 from sqlmodel import Session, select
 
@@ -9,7 +11,7 @@ router = APIRouter(prefix="/internal")
 
 
 def require_service_token(x_service_token: str | None = Header(default=None)) -> None:
-    if x_service_token != settings.api_service_token:
+    if not secrets.compare_digest(x_service_token or "", settings.api_service_token):
         raise HTTPException(status_code=401, detail="invalid service token")
 
 

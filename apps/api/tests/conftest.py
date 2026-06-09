@@ -13,6 +13,7 @@ def client():
         yield c
 
 
+# Seed is not torn down; tests must treat app_info rows as read-only.
 @pytest.fixture(autouse=True, scope="session")
 def _ensure_seed():
     SQLModel.metadata.create_all(engine)
