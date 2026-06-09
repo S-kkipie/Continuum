@@ -2,6 +2,7 @@ services:
   postgres:
     image: postgres:16
     container_name: continuum-pg
+    restart: unless-stopped
     environment:
       POSTGRES_USER: continuum
       POSTGRES_PASSWORD: continuum
@@ -10,5 +11,10 @@ services:
       - "5432:5432"
     volumes:
       - continuum_pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U continuum -d continuum"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 volumes:
   continuum_pg:
