@@ -17,7 +17,14 @@ target_metadata = SQLModel.metadata
 # listed below. Without this guard, `alembic revision --autogenerate` would diff
 # SQLModel.metadata (which only knows the app tables) against the live schema and emit
 # DROP statements for every Drizzle-managed table.
-_MANAGED_TABLES = {"app_info"}
+_MANAGED_TABLES = {
+    "app_info",
+    "role",
+    "successor",
+    "knowledge_source",
+    "document",
+    "ingestion_job",
+}
 
 
 def include_object(obj, name, type_, reflected, compare_to):  # noqa: ANN001, ANN201
