@@ -4,16 +4,25 @@ import { auth } from "@/lib/auth";
 import { callApi } from "@/lib/api";
 
 export async function GET() {
-  const session = await auth.api.getSession({ headers: await headers() });
+  // Session is optional for the walking skeleton; a DB blip must not crash the route.
+  let session: Awaited<ReturnType<typeof auth.api.getSession>> = null;
+  try {
+    session = await auth.api.getSession({ headers: await headers() });
+  } catch {
+    // session stays null (non-fatal)
+  }
 
-  // Walking skeleton: session is optional here so the chain is demoable pre-login.
-  // Spec 1+ routes will require it.
-  const upstream = await callApi<{ from: string; db: string }>("/internal/hello");
-
-  return NextResponse.json({
-    from: "bff",
-    authenticated: Boolean(session?.user),
-    user: session?.user?.email ?? null,
-    upstream,
-  });
+  try {
+    const upstream = await callApi<{ from: string; db: string }>("/internal/hello");
+    return NextResponse.json({
+      from: "bff",
+      authenticated: Boolean(session?.user),
+      user: session?.user?.email ?? null,
+      upstream,
+    });
+  } catch (err) {
+    // 502 = upstream replied non-OK; 503 = upstream unreachable
+    const status = err instanceof Error && err.message.includes("failed:") ? 502 : 503;
+    return NextResponse.json({ error: "upstream_unavailable" }, { status });
+  }
 }
