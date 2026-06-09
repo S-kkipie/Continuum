@@ -1,0 +1,11 @@
+{
+  "name": "@continuum/api",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "dev": "uv run uvicorn continuum_api.main:app --reload --port 8000",
+    "lint": "uv run ruff check .",
+    "typecheck": "uv run python -c \"import continuum_api.main\"",
+    "test": "uv run pytest -q"
+  }
+}
