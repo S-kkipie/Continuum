@@ -1,0 +1,14 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: continuum-pg
+    environment:
+      POSTGRES_USER: continuum
+      POSTGRES_PASSWORD: continuum
+      POSTGRES_DB: continuum
+    ports:
+      - "5432:5432"
+    volumes:
+      - continuum_pg:/var/lib/postgresql/data
+volumes:
+  continuum_pg:
