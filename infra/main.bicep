@@ -4,6 +4,9 @@ targetScope = 'resourceGroup'
 param environmentName string
 param location string = resourceGroup().location
 
+@secure()
+param postgresAdminPassword string
+
 module identity 'modules/identity.bicep' = {
   name: 'identity'
   params: { environmentName: environmentName, location: location }
@@ -11,17 +14,29 @@ module identity 'modules/identity.bicep' = {
 
 module postgres 'modules/postgres.bicep' = {
   name: 'postgres'
-  params: { environmentName: environmentName, location: location }
+  params: {
+    environmentName: environmentName
+    location: location
+    administratorLoginPassword: postgresAdminPassword
+  }
 }
 
 module storage 'modules/storage.bicep' = {
   name: 'storage'
-  params: { environmentName: environmentName, location: location }
+  params: {
+    environmentName: environmentName
+    location: location
+    principalId: identity.outputs.principalId
+  }
 }
 
 module search 'modules/search.bicep' = {
   name: 'search'
-  params: { environmentName: environmentName, location: location }
+  params: {
+    environmentName: environmentName
+    location: location
+    principalId: identity.outputs.principalId
+  }
 }
 
 module apps 'modules/containerapps.bicep' = {

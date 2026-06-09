@@ -1,6 +1,9 @@
 param environmentName string
 param location string
 
+@secure()
+param administratorLoginPassword string
+
 resource pg 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
   name: 'pg-${environmentName}'
   location: location
@@ -8,7 +11,7 @@ resource pg 'Microsoft.DBforPostgreSQL/flexibleServers@2024-08-01' = {
   properties: {
     version: '16'
     administratorLogin: 'continuum'
-    administratorLoginPassword: 'ChangeMe-${uniqueString(resourceGroup().id)}!'
+    administratorLoginPassword: administratorLoginPassword
     storage: { storageSizeGB: 32 }
     highAvailability: { mode: 'Disabled' }
   }
