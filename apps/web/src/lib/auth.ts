@@ -9,9 +9,9 @@ export const auth = betterAuth({
   baseURL: process.env.BETTER_AUTH_URL,
   socialProviders: {
     microsoft: {
-      clientId: process.env.MICROSOFT_CLIENT_ID as string,
-      clientSecret: process.env.MICROSOFT_CLIENT_SECRET as string,
-      tenantId: process.env.MICROSOFT_TENANT_ID as string,
+      clientId: process.env.MICROSOFT_CLIENT_ID || "",
+      clientSecret: process.env.MICROSOFT_CLIENT_SECRET || "",
+      tenantId: process.env.MICROSOFT_TENANT_ID || "",
       scope: ["openid", "profile", "email", "offline_access", "User.Read"],
     },
   },
