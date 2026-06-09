@@ -49,6 +49,7 @@ jobs:
         with:
           python-version: "3.12"
       - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @continuum/db db:migrate
       - run: cd apps/api && uv sync
       - run: cd apps/api && uv run alembic upgrade head
       - run: pnpm turbo run lint typecheck test build
