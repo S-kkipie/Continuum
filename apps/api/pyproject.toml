@@ -18,7 +18,7 @@ dependencies = [
 ]
 
 [project.scripts]
-continuum-api = "continuum_api:main"
+continuum-api = "continuum_api.main:serve"
 
 [dependency-groups]
 dev = [
@@ -33,3 +33,6 @@ build-backend = "uv_build"
 
 [tool.ruff]
 line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]
