@@ -1,7 +1,7 @@
-import { NextResponse } from "next/server";
 import { headers } from "next/headers";
-import { auth } from "@/lib/auth";
+import { NextResponse } from "next/server";
 import { callApi } from "@/lib/api";
+import { auth } from "@/lib/auth";
 
 export async function GET() {
   // Session is optional for the walking skeleton; a DB blip must not crash the route.

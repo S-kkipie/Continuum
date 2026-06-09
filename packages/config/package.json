@@ -2,14 +2,13 @@
   "name": "@continuum/config",
   "version": "0.0.0",
   "private": true,
-  "files": ["tsconfig.base.json", "eslint.base.mjs"],
+  "files": [
+    "tsconfig.base.json"
+  ],
   "exports": {
-    "./tsconfig": "./tsconfig.base.json",
-    "./eslint": "./eslint.base.mjs"
+    "./tsconfig": "./tsconfig.base.json"
   },
-  "devDependencies": {
-    "@eslint/js": "^9.13.0",
-    "eslint": "^9.13.0",
-    "typescript-eslint": "^8.10.0"
+  "scripts": {
+    "lint": "biome check ."
   }
 }
