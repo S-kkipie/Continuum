@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 
-from continuum_api.routes import capture, health, internal
+from continuum_api.routes import capture, chat, health, internal
 
 app = FastAPI(title="Continuum API")
 app.include_router(health.router)
 app.include_router(internal.router)
 app.include_router(capture.router)
+app.include_router(chat.router)
 
 
 def serve() -> None:
