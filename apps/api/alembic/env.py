@@ -24,6 +24,8 @@ _MANAGED_TABLES = {
     "knowledge_source",
     "document",
     "ingestion_job",
+    "conversation",
+    "message",
 }
 
 
