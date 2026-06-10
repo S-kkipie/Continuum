@@ -25,5 +25,17 @@ class Settings(BaseSettings):
     # Retrieval tuning
     retrieve_top: int = 5
 
+    # Mentor chat backend — default fake so the loop runs without Azure OpenAI.
+    chat_backend: Literal["fake", "azure_openai"] = "fake"
+
+    # Azure OpenAI (only when chat_backend == "azure_openai"; auth via DefaultAzureCredential)
+    azure_openai_endpoint: str = ""
+    azure_openai_deployment: str = ""
+    azure_openai_api_version: str = "2024-10-21"
+
+    # Mentor tuning
+    mentor_retrieve_top: int = 5
+    mentor_max_iterations: int = 4
+
 
 settings = Settings()
