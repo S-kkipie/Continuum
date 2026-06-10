@@ -1,6 +1,8 @@
 # Spec 1 Handoff — Capture Loop
 
-The immediate next work. Full design: `docs/superpowers/specs/2026-06-09-continuum-spec1-capture-design.md`. This file is the quick orientation for a fresh context.
+> **✅ DONE — merged to `main` 2026-06-09.** This file is now historical orientation. Built per `docs/superpowers/plans/2026-06-09-continuum-spec1-capture.md`; current facts + deferred follow-ups live in `STATE.md`. The next work is **Spec 2 (mentor agent)** — `docs/superpowers/specs/2026-06-09-continuum-spec2-mentor-design.md`, not yet planned.
+
+Full design: `docs/superpowers/specs/2026-06-09-continuum-spec1-capture-design.md`. This file is the quick orientation for a fresh context.
 
 ## Goal
 
