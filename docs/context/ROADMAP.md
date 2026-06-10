@@ -7,7 +7,7 @@ A phased program. Each sub-spec is its own spec → plan → implement cycle. Ca
 | 0 | **Scaffold & infra** (walking skeleton) | ✅ DONE — plan: `docs/superpowers/plans/2026-06-09-continuum-scaffold.md` |
 | 1 | **Domain model + ingestion → Foundry IQ** (capture loop) | ✅ DONE — plan: `plans/…-spec1-capture.md` (merged 2026-06-09; local/fake default, gated Azure ITs) |
 | 2 | **Grounded mentor agent** (own loop + Azure OpenAI tool-calling + Foundry IQ retrieval) | ✅ DONE — plan: `plans/…-spec2-mentor.md` (merged 2026-06-09; fake-first, gated Azure IT). NB: own-loop NOT Agent Framework, minimal SSE chat NOT assistant-ui — see plan §Architecture decisions + `STATE.md`. |
-| 2 | **Onboarding plan + exercises + progress** | 📝 Speced (`…-spec3-onboarding-design.md`), not yet planned, **NEXT**. Reuses the Spec 2 `MentorAgent` + `Conversation`/`Message` (note `user_id` is now a real user id). |
+| 2 | **Onboarding plan + exercises + progress** | 📋 Planned (`plans/…-spec3-onboarding.md`, 12 TDD tasks, fake-first) — ready to implement, **NEXT**. Swappable `generation_backend=fake\|live` (fake = canned, CI/demo; live = ChatModel + retrieve + JSON). Reuses Spec 1/2 swap points (NOT the MentorAgent chat loop). |
 | 3 | **Work IQ + Fabric IQ enrichment** | 📝 Speced (`…-spec4-iq-enrichment-design.md`) — prereq: Copilot-licensed M365 tenant + Fabric capacity (mockable) |
 | 4 | **Seed dataset + UI polish + demo script** | 📝 Speced (`…-spec5-demo-design.md`), not yet planned |
 
