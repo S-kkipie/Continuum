@@ -1,7 +1,7 @@
 import json
 from collections.abc import AsyncIterator
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, Header, HTTPException
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
 from sqlmodel import Session
@@ -25,6 +25,10 @@ def _capture(session: Session) -> IngestionService:
     return IngestionService(session, blob, build_knowledge(blob))
 
 
+def _user(x_user_id: str | None = Header(default=None), org: str = Depends(_org)) -> str:
+    return x_user_id or org
+
+
 class SendMessage(BaseModel):
     content: str = Field(min_length=1, max_length=10_000)
 
@@ -37,6 +41,7 @@ def _sse(event: str, data: str) -> str:
 def create_conversation(
     successor_id: str,
     org: str = Depends(_org),
+    user: str = Depends(_user),
     session: Session = Depends(get_session),
 ) -> dict:
     capture = _capture(session)
@@ -47,8 +52,7 @@ def create_conversation(
         raise HTTPException(status_code=404, detail="not found")
     if successor.status != "ready":
         raise HTTPException(status_code=409, detail="successor still learning this role")
-    # TODO: use the per-user X-User-Id once the BFF forwards it; `org` is a v1 stand-in.
-    convo = ConversationService(session).create(successor_id=successor_id, user_id=org)
+    convo = ConversationService(session).create(successor_id=successor_id, user_id=user)
     session.commit()
     return {"id": convo.id}
 
@@ -61,7 +65,8 @@ def get_conversation(
 ) -> dict:
     convos = ConversationService(session)
     convo = convos.get(conversation_id)
-    if convo is None or not _capture(session).successor_in_org(convo.successor_id, org):
+    capture = _capture(session)
+    if convo is None or not capture.successor_in_org(convo.successor_id, org):
         raise HTTPException(status_code=404, detail="not found")
     msgs = convos.history(conversation_id)
     return {

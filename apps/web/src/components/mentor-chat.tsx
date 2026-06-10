@@ -39,13 +39,22 @@ export function MentorChat({ successorId }: { successorId: string }) {
       });
       if (!res.ok) throw new Error(`message -> ${res.status}`);
       await consumeSse(res, {
+        onRetrieval: (query) =>
+          setMessages((m) => {
+            const next = [...m];
+            const last = next[next.length - 1];
+            if (last.role === "assistant" && last.content === "") {
+              next[next.length - 1] = { ...last, content: `🔎 searching: ${query}…` };
+            }
+            return next;
+          }),
         onDelta: (t) =>
           setMessages((m) => {
             const next = [...m];
-            next[next.length - 1] = {
-              ...next[next.length - 1],
-              content: next[next.length - 1].content + t,
-            };
+            const last = next[next.length - 1];
+            // first delta clears the transient "searching…" placeholder
+            const base = last.content.startsWith("🔎 searching") ? "" : last.content;
+            next[next.length - 1] = { ...last, content: base + t };
             return next;
           }),
         onCitations: (c) =>

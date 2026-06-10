@@ -4,7 +4,11 @@ import uuid
 
 def _h():
     from continuum_api.settings import settings
-    return {"X-Service-Token": settings.api_service_token, "X-Org-Id": "o-chat"}
+    return {
+        "X-Service-Token": settings.api_service_token,
+        "X-Org-Id": "o-chat",
+        "X-User-Id": "u-chat",
+    }
 
 
 def _ready_successor(client, h):
@@ -105,3 +109,16 @@ def test_empty_message_content_rejected(client):
     r = client.post(f"/internal/conversations/{cid}/messages",
                     json={"content": ""}, headers=h)
     assert r.status_code == 422
+
+
+def test_conversation_records_user_id_from_header(client):
+    from sqlmodel import Session
+
+    from continuum_api.db import engine
+    from continuum_api.models import Conversation
+    h = _h()
+    sid = _ready_successor(client, h)
+    cid = client.post(f"/internal/successors/{sid}/conversations", headers=h).json()["id"]
+    with Session(engine) as s:
+        convo = s.get(Conversation, cid)
+        assert convo.user_id == "u-chat"
