@@ -3,6 +3,7 @@ from fastapi.testclient import TestClient
 from sqlmodel import Session, select
 
 from continuum_api.db import engine
+from continuum_api.knowledge.factory import reset_fake_knowledge
 from continuum_api.main import app
 from continuum_api.models import AppInfo
 
@@ -23,3 +24,10 @@ def _ensure_seed():
             s.add(AppInfo(key="scaffold", value="continuum"))
             s.commit()
     yield
+
+
+@pytest.fixture(autouse=True)
+def _reset_fake_knowledge():
+    reset_fake_knowledge()
+    yield
+    reset_fake_knowledge()
