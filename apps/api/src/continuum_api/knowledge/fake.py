@@ -22,6 +22,22 @@ def _words(text: str) -> set[str]:
     return {w.strip(_STRIP).lower() for w in text.split() if w.strip(_STRIP)}
 
 
+def _overlap(query_words: set[str], chunk_words: set[str]) -> int:
+    """Count matching terms, treating prefix matches (≥4 chars) as hits.
+
+    This lets ``deploy`` match ``deploys``, ``refund`` match ``refunds``, etc.,
+    without a full stemmer dependency.
+    """
+    exact = len(query_words & chunk_words)
+    prefix = sum(
+        1
+        for q in query_words - chunk_words
+        for c in chunk_words
+        if len(q) >= 4 and (c.startswith(q) or q.startswith(c))
+    )
+    return exact + prefix
+
+
 class FakeFoundryKnowledge:
     """In-memory FoundryKnowledge: reads text blobs, keyword-scores chunks.
 
@@ -80,7 +96,7 @@ class FakeFoundryKnowledge:
         q = _words(query)
         scored: list[RetrievedSnippet] = []
         for chunk in self._kbs[kb].chunks:
-            overlap = len(q & _words(chunk.text))
+            overlap = _overlap(q, _words(chunk.text))
             if overlap:
                 scored.append(
                     RetrievedSnippet(

@@ -58,3 +58,28 @@ def test_start_indexing_without_source_raises(tmp_path):
     kn.ensure_knowledge_base("kb-x")
     with pytest.raises(RuntimeError):
         kn.start_indexing("kb-x")
+
+
+def test_retrieve_prefix_matches_plural_form(tmp_path):
+    blob = LocalBlobStore(root=str(tmp_path))
+    container = blob.ensure_container("s2")
+    blob.put(container, "ops.txt", b"Deploys happen on Fridays.", "text/plain")
+    kn = FakeFoundryKnowledge(blob)
+    kb = kn.ensure_knowledge_base("kb-prefix")
+    kn.ensure_blob_source(kb, container)
+    kn.start_indexing(kb)
+    # bare stem "deploy" should match indexed "Deploys" via >=4-char prefix logic
+    hits = kn.retrieve(kb, "when do we deploy", top=3)
+    assert hits and "Fridays" in hits[0].content
+
+
+def test_retrieve_short_tokens_do_not_prefix_match(tmp_path):
+    blob = LocalBlobStore(root=str(tmp_path))
+    container = blob.ensure_container("s3")
+    blob.put(container, "doc.txt", b"The cat sat.", "text/plain")
+    kn = FakeFoundryKnowledge(blob)
+    kb = kn.ensure_knowledge_base("kb-short")
+    kn.ensure_blob_source(kb, container)
+    kn.start_indexing(kb)
+    # "cab" (<4 char prefix rule) must NOT prefix-match "cat"
+    assert kn.retrieve(kb, "cab", top=3) == []
