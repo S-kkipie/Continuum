@@ -56,3 +56,24 @@ def test_query_unknown_successor_404(client):
 def test_job_status_unknown_job_404(client):
     r = client.get("/internal/successors/nope/ingest/nope", headers=_headers())
     assert r.status_code == 404
+
+
+def test_successor_cross_org_access_is_404(client):
+    role_id = f"r-{uuid.uuid4().hex[:8]}"
+    a = {"X-Service-Token": _headers()["X-Service-Token"], "X-Org-Id": "org-A"}
+    b = {"X-Service-Token": _headers()["X-Service-Token"], "X-Org-Id": "org-B"}
+    client.post("/internal/roles", json={"id": role_id, "title": "X"}, headers=a)
+    sid = client.post(f"/internal/roles/{role_id}/successor", headers=a).json()["id"]
+    # org B cannot reach ANY successor-scoped route for org A's successor
+    assert client.get(f"/internal/successors/{sid}", headers=b).status_code == 404
+    assert client.post(f"/internal/successors/{sid}/query",
+                       json={"query": "x"}, headers=b).status_code == 404
+    assert client.post(f"/internal/successors/{sid}/ingest", headers=b).status_code == 404
+    assert client.post(
+        f"/internal/successors/{sid}/documents",
+        files=[("files", ("p.txt", b"hi", "text/plain"))], headers=b,
+    ).status_code == 404
+    assert client.get(f"/internal/successors/{sid}/ingest/whatever",
+                      headers=b).status_code == 404
+    # org A still can
+    assert client.get(f"/internal/successors/{sid}", headers=a).status_code == 200

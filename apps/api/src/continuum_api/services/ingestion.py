@@ -144,6 +144,21 @@ class IngestionService:
             successor.status = "ready"
         elif status.state == "partial":
             job.status = "partial"
+            # Reconcile per-doc from the error lines. The indexing layer formats each
+            # error as "<path>: <reason>" where <path> is the document's blob_path.
+            # Docs whose path appears in an error are marked failed (with that message);
+            # the rest are considered indexed. (For backends whose error strings don't
+            # carry the path, no doc matches and all are marked indexed — best effort.)
+            failed_by_path: dict[str, str] = {}
+            for err in status.errors:
+                path = err.split(":", 1)[0].strip()
+                failed_by_path.setdefault(path, err)
+            for doc in docs:
+                if doc.blob_path in failed_by_path:
+                    doc.status = "failed"
+                    doc.error = failed_by_path[doc.blob_path]
+                else:
+                    doc.status = "indexed"
             successor.status = "ready"
         else:
             job.status = "failed"
@@ -155,6 +170,13 @@ class IngestionService:
         return job
 
     # --- read -----------------------------------------------------------
+    def successor_in_org(self, successor_id: str, org_id: str) -> bool:
+        successor = self.successors.get(successor_id)
+        if successor is None:
+            return False
+        role = self.roles.get(successor.role_id)
+        return role is not None and role.org_id == org_id
+
     def get_successor(self, successor_id: str) -> Successor | None:
         return self.successors.get(successor_id)
 

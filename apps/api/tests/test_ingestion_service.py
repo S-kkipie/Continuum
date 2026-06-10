@@ -51,6 +51,13 @@ def test_non_text_doc_marks_partial(tmp_path):
     assert job.status == "partial"
     assert job.doc_indexed == 1 and job.doc_failed == 1
 
+    # per-doc reconciliation: good.txt indexed, bad.bin failed with an error
+    source = svc.sources.for_successor(successor.id)
+    docs = {d.filename: d for d in svc.documents.for_source(source.id)}
+    assert docs["good.txt"].status == "indexed"
+    assert docs["bad.bin"].status == "failed"
+    assert docs["bad.bin"].error  # non-empty error message
+
 
 def test_retrieve_unknown_successor_raises(tmp_path):
     svc, _ = _svc(tmp_path)

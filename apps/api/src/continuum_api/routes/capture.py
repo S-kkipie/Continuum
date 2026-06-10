@@ -74,6 +74,9 @@ async def upload_documents(
     org: str = Depends(_org),
     session: Session = Depends(get_session),
 ) -> dict:
+    svc = _service(session)
+    if not svc.successor_in_org(successor_id, org):
+        raise HTTPException(status_code=404, detail="not found")
     payload = [
         (
             f.filename or f"file-{uuid.uuid4().hex}",
@@ -83,7 +86,7 @@ async def upload_documents(
         for f in files
     ]
     try:
-        docs = _service(session).add_documents(successor_id, payload)
+        docs = svc.add_documents(successor_id, payload)
     except LookupError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     session.commit()
@@ -97,6 +100,8 @@ def ingest(
     session: Session = Depends(get_session),
 ) -> dict:
     svc = _service(session)
+    if not svc.successor_in_org(successor_id, org):
+        raise HTTPException(status_code=404, detail="not found")
     try:
         job = svc.ingest(successor_id)
         # local/fake indexing is synchronous; reconcile immediately. (Real Azure:
@@ -116,8 +121,12 @@ def job_status(
     org: str = Depends(_org),
     session: Session = Depends(get_session),
 ) -> dict:
-    # TODO(v2): enforce org ownership on this read path; today the BFF is the org boundary.
     svc = _service(session)
+    if not svc.successor_in_org(successor_id, org):
+        raise HTTPException(status_code=404, detail="not found")
+    job = svc.jobs.get(job_id)
+    if job is None or job.successor_id != successor_id:
+        raise HTTPException(status_code=404, detail="not found")
     try:
         job = svc.sync_job(job_id)
     except LookupError as e:
@@ -137,8 +146,10 @@ def get_successor(
     org: str = Depends(_org),
     session: Session = Depends(get_session),
 ) -> dict:
-    # TODO(v2): enforce org ownership on this read path; today the BFF is the org boundary.
-    s = _service(session).get_successor(successor_id)
+    svc = _service(session)
+    if not svc.successor_in_org(successor_id, org):
+        raise HTTPException(status_code=404, detail="not found")
+    s = svc.get_successor(successor_id)
     if s is None:
         raise HTTPException(status_code=404, detail="not found")
     return {"id": s.id, "status": s.status, "knowledge_base_name": s.knowledge_base_name}
@@ -151,9 +162,11 @@ def query(
     org: str = Depends(_org),
     session: Session = Depends(get_session),
 ) -> dict:
-    # TODO(v2): enforce org ownership on this read path; today the BFF is the org boundary.
+    svc = _service(session)
+    if not svc.successor_in_org(successor_id, org):
+        raise HTTPException(status_code=404, detail="not found")
     try:
-        hits = _service(session).retrieve(successor_id, body.query, top=settings.retrieve_top)
+        hits = svc.retrieve(successor_id, body.query, top=settings.retrieve_top)
     except LookupError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     return {
